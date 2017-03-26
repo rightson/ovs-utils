@@ -5,7 +5,7 @@ export DEFAULT_RYU=$HOME/workspace/ryu
 export DEFAULT_OVS=$HOME/workspace/ovs
 
 Usage() {
-    echo "$0 InstallRyu|StartRyuWeb|InstallOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
+    echo "$0 InstallRyu|StartRyuWeb|InstallOvs|StartOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
     exit 1
 }
 
@@ -84,6 +84,11 @@ StartOvsSwitch() {
     StartOvsDb
     sudo ovs-vswitchd --pidfile --detach
     ps aux | grep ovs-vswitchd
+}
+
+StartOvs() {
+    StartOvsDb
+    StartOvsSwitch
 }
 
 SetupEnv() {
