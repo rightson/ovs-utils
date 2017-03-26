@@ -1,27 +1,49 @@
 #!/bin/bash
 
+export LC_ALL=C
+export DEFAULT_RYU=$HOME/workspace/ryu
+export DEFAULT_OVS=$HOME/workspace/ovs
+
 Usage() {
-    echo "$0 InstallRyu|InstallOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
+    echo "$0 InstallRyu|StartRyuWeb|InstallOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
     exit 1
+}
+
+InstallPip() {
+    sudo apt-get install -y python-pip
+    pip install --upgrade pip
+}
+
+GetCpuInfo() {
+    cat /proc/cpuinfo | grep processor | wc | awk '{print $1}'
 }
 
 InstallRyu() {
     local dst=$1
     if [ -z $dst ]; then
-        dst=$HOME/workspace/ryu
+        dst=$DEFAULT_RYU
     fi
     if [ ! -d $dst ]; then
         git clone git://github.com/osrg/ryu.git $dst
     fi
-    sudo apt-get install -y python-pip
+    InstallPip
     cd ryu;
     pip install .
+}
+
+StartRyuWeb() {
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$DEFAULT_RYU
+    fi
+    cd $dst
+    ryu-manager --observe-links ryu/app/gui_topology/gui_topology.py ryu/app/simple_switch_websocket_13.py
 }
 
 InstallOvs() {
     local dst=$1
     if [ -z $dst ]; then
-        dst=$HOME/workspace/ovs
+        dst=$DEFAULT_OVS
     fi
     if [ ! -d $dst ]; then
         git clone https://github.com/openvswitch/ovs.git $dst
@@ -30,7 +52,7 @@ InstallOvs() {
     cd $dst
     ./boot.sh
     ./configure
-    make -j `cat /proc/cpuinfo | grep processor | wc  | awk '{print $1}'`
+    make -j `GetCpuInfo`
     sudo make install
     ProbeOvsKernelModule 
     sudo mkdir -p /usr/local/etc/openvswitch
