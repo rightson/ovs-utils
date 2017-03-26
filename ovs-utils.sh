@@ -27,8 +27,7 @@ InstallRyu() {
         git clone git://github.com/osrg/ryu.git $dst
     fi
     InstallPip
-    cd ryu;
-    pip install .
+    cd $dst && pip install .
 }
 
 StartRyuWeb() {
