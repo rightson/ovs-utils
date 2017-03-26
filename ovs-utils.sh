@@ -1,13 +1,29 @@
 #!/bin/bash
 
 Usage() {
-    echo "$0 Bootstrap|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
+    echo "$0 InstallRyu|InstallOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
     exit 1
 }
 
-Bootstrap() {
-    local dst=$HOME/workspace/ovs
-    if [ ! -f $dst ]; then
+InstallRyu() {
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$HOME/workspace/ryu
+    fi
+    if [ ! -d $dst ]; then
+        git clone git://github.com/osrg/ryu.git $dst
+    fi
+    sudo apt-get install -y python-pip
+    cd ryu;
+    pip install .
+}
+
+InstallOvs() {
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$HOME/workspace/ovs
+    fi
+    if [ ! -d $dst ]; then
         git clone https://github.com/openvswitch/ovs.git $dst
     fi
     sudo apt-get install -y autoconf automake libtool
@@ -34,7 +50,6 @@ StartOvsDb() {
     --certificate=db:Open_vSwitch,SSL,certificate \
     --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert --pidfile --detach
     ps aux | grep ovsdb-server
-
 }
 
 StartOvsSwitch() {
@@ -44,7 +59,10 @@ StartOvsSwitch() {
 } 
 
 SetupEnv() {
-    local dst=$HOME/workspace/shell-dev-env
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$HOME/workspace/shell-dev-env
+    fi
     git clone https://github.com/rightson/shell-dev-env $dst
     ln -s $dst $HOME/.env
 }
