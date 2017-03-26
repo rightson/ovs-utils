@@ -34,6 +34,7 @@ InstallRyu() {
     InstallVirtualenv
     cd $dst
     virtualenv venv
+    venv/bin/pip install six
     venv/bin/pip install .
 }
 
