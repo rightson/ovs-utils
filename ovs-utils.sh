@@ -6,7 +6,7 @@ Usage() {
 }
 
 Bootstrap() {
-    local dst=~/workspace/ovs
+    local dst=$HOME/workspace/ovs
     if [ ! -f $dst ]; then
         git clone https://github.com/openvswitch/ovs.git $dst
     fi
