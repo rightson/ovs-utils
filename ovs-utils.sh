@@ -14,6 +14,10 @@ InstallPip() {
     pip install --upgrade pip
 }
 
+InstallVirtualenv() {
+    sudo apt-get install -y python-virtualenv
+}
+
 GetCpuInfo() {
     cat /proc/cpuinfo | grep processor | wc | awk '{print $1}'
 }
@@ -27,7 +31,10 @@ InstallRyu() {
         git clone git://github.com/osrg/ryu.git $dst
     fi
     InstallPip
-    cd $dst && pip install .
+    InstallVirtualenv
+    cd $dst
+    virtualenv venv
+    venv/bin/pip install .
 }
 
 StartRyuWeb() {
@@ -36,7 +43,7 @@ StartRyuWeb() {
         dst=$DEFAULT_RYU
     fi
     cd $dst
-    ryu-manager --observe-links ryu/app/gui_topology/gui_topology.py ryu/app/simple_switch_websocket_13.py
+    venv/bin/ryu-manager --observe-links ryu/app/gui_topology/gui_topology.py ryu/app/simple_switch_websocket_13.py
 }
 
 InstallOvs() {
@@ -53,10 +60,10 @@ InstallOvs() {
     ./configure
     make -j `GetCpuInfo`
     sudo make install
-    ProbeOvsKernelModule 
+    ProbeOvsKernelModule
     sudo mkdir -p /usr/local/etc/openvswitch
     sudo ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vswitch.ovsschema
-} 
+}
 
 ProbeOvsKernelModule() {
     sudo /sbin/modprobe openvswitch
@@ -77,7 +84,7 @@ StartOvsSwitch() {
     StartOvsDb
     sudo ovs-vswitchd --pidfile --detach
     ps aux | grep ovs-vswitchd
-} 
+}
 
 SetupEnv() {
     local dst=$1
