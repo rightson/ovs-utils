@@ -92,6 +92,15 @@ StartOvs() {
     StartOvsSwitch
 }
 
+StopOvs() {
+    sudo killall -9 ovs-vswitchd ovsdb-server
+}
+
+RestartOvs() {
+    StopOvs
+    StartOvs
+}
+
 SetupEnv() {
     local dst=$1
     if [ -z $dst ]; then
