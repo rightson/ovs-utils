@@ -45,6 +45,9 @@ GetRyuSource() {
 InstallRyu() {
     echo "[InstallRyu]"
     local dst=$1
+    if [ -z $dst ]; then
+        dst=$DEFAULT_RYU_SRC
+    fi
     GetRyuSource $dst
     InstallPip
     InstallVirtualenv
@@ -78,6 +81,9 @@ GetFloodlightSource() {
 InstallFloodlight() {
     echo "[InstallFloodlight]"
     local dst=$1 
+    if [ -z $dst ]; then
+        dst=$DEFAULT_FLOODLIGHT_SRC
+    fi
     GetFloodlightSource $dst
     sudo apt-get install -y build-essential ant maven python-dev
     ant
@@ -109,6 +115,9 @@ GetOvsSource() {
 InstallOvs() {
     echo "[InstallOvs]"
     local dst=$1
+    if [ -z $dst ]; then
+        dst=$DEFAULT_OVS_SRC
+    fi
     GetOvsSource $dst
     sudo apt-get install -y autoconf automake libtool
     cd $dst
