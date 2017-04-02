@@ -8,13 +8,19 @@ export DEFAULT_OVS_SRC=$DEFAULT_SRC_PREFIX/ovs
 export OVS_INSTALL_PREFIX=/usr/local
 
 Usage() {
-    echo "$0 InstallRyu|StartRyuWeb|InstallFloodlight|InstallOvs|StartOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
-    exit 1
+    echo "$0 OPTION"
+    echo ""
+    echo "OPTION"
+    echo "  Ryu Helper:         GetRyuSource | InstallRyu | StartRyu"
+    echo "  Floodlight Helper:  GetFloodlightSource | InstallFloodlight | StartFloodlight"
+    echo "  OVS Helper:         GetOvsSource | InstallOvs | StartOvs"
+    echo "                      StartOvsDb | StartOvsSwitch | ProbeOvsKernelModule"
+    exit 0
 }
 
 InstallPip() {
     sudo apt-get install -y python-pip
-    pip install --upgrade pip
+    sudo -H pip install --upgrade pip
 }
 
 InstallVirtualenv() {
@@ -25,8 +31,8 @@ GetCpuInfo() {
     cat /proc/cpuinfo | grep processor | wc | awk '{print $1}'
 }
 
-InstallRyu() {
-    echo "[InstallRyu]"
+GetRyuSource() {
+    echo "[GetRyuSource]"
     local dst=$1
     if [ -z $dst ]; then
         dst=$DEFAULT_RYU_SRC
@@ -34,6 +40,12 @@ InstallRyu() {
     if [ ! -d $dst ]; then
         git clone git://github.com/osrg/ryu.git $dst
     fi
+}
+
+InstallRyu() {
+    echo "[InstallRyu]"
+    local dst=$1
+    GetRyuSource $dst
     InstallPip
     InstallVirtualenv
     cd $dst
@@ -42,7 +54,7 @@ InstallRyu() {
     venv/bin/pip install .
 }
 
-StartRyuWeb() {
+StartRyu() {
     echo "[StartRyuWeb]"
     local dst=$1
     if [ -z $dst ]; then
@@ -52,17 +64,39 @@ StartRyuWeb() {
     venv/bin/ryu-manager --observe-links ryu/app/gui_topology/gui_topology.py ryu/app/simple_switch_websocket_13.py
 }
 
+GetFloodlightSource() {
+    echo "[GetFloodlightSource]"
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$DEFAULT_FLOODLIGHT_SRC
+    fi
+    if [ ! -d $dst ]; then
+        git clone git://github.com/floodlight/floodlight.git $dst
+    fi
+}
+
 InstallFloodlight() {
+    echo "[InstallFloodlight]"
+    local dst=$1 
+    GetFloodlightSource $dst
     sudo apt-get install -y build-essential ant maven python-dev
-    git clone git://github.com/floodlight/floodlight.git $DEFAULT_FLOODLIGHT_SRC
-    cd $DEFAULT_FLOODLIGHT_SRC
     ant
     sudo mkdir /var/lib/floodlight
     sudo chmod 777 /var/lib/floodlight
 }
 
-InstallOvs() {
-    echo "[InstallOvs]"
+StartFloodlight() {
+    echo "[StartFloodlight]"
+    local dst=$1
+    if [ -z $dst ]; then
+        dst=$DEFAULT_FLOODLIGHT_SRC
+    fi
+    cd $dst
+    java -jar target/floodlight.jar
+}
+
+GetOvsSource() {
+    echo "[GetOvsSource]"
     local dst=$1
     if [ -z $dst ]; then
         dst=$DEFAULT_OVS_SRC
@@ -70,6 +104,12 @@ InstallOvs() {
     if [ ! -d $dst ]; then
         git clone https://github.com/openvswitch/ovs.git $dst
     fi
+}
+
+InstallOvs() {
+    echo "[InstallOvs]"
+    local dst=$1
+    GetOvsSource $dst
     sudo apt-get install -y autoconf automake libtool
     cd $dst
     ./boot.sh
@@ -121,15 +161,6 @@ RestartOvs() {
     echo "[RestartOvs]"
     StopOvs
     StartOvs
-}
-
-SetupEnv() {
-    local dst=$1
-    if [ -z $dst ]; then
-        dst=$HOME/.env
-    fi
-    git clone https://github.com/rightson/shell-dev-env $dst
-    ln -s $dst $HOME/.env
 }
 
 if [ -z $1 ]; then
