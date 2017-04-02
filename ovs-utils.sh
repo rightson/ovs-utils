@@ -120,7 +120,12 @@ InstallOvs() {
     fi
     GetOvsSource $dst
     sudo apt-get install -y autoconf automake libtool
+    InstallPip
+    InstallVirtualenv
     cd $dst
+    virtualenv venv
+    source venv/bin/activate
+    pip install six
     ./boot.sh
     ./configure
     make -j `GetCpuInfo`
