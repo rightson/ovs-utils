@@ -3,11 +3,12 @@
 export LC_ALL=C
 export DEFAULT_SRC_PREFIX=$HOME/workspace
 export DEFAULT_RYU_SRC=$DEFAULT_SRC_PREFIX/ryu
+export DEFAULT_FLOODLIGHT_SRC=$DEFAULT_SRC_PREFIX/floodlight
 export DEFAULT_OVS_SRC=$DEFAULT_SRC_PREFIX/ovs
 export OVS_INSTALL_PREFIX=/usr/local
 
 Usage() {
-    echo "$0 InstallRyu|StartRyuWeb|InstallOvs|StartOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
+    echo "$0 InstallRyu|StartRyuWeb|InstallFloodlight|InstallOvs|StartOvs|ProbeOvsKernelModule|StartOvsDb|StartOvsSwitch"
     exit 1
 }
 
@@ -49,6 +50,15 @@ StartRyuWeb() {
     fi
     cd $dst
     venv/bin/ryu-manager --observe-links ryu/app/gui_topology/gui_topology.py ryu/app/simple_switch_websocket_13.py
+}
+
+InstallFloodlight() {
+    sudo apt-get install -y build-essential ant maven python-dev
+    git clone git://github.com/floodlight/floodlight.git $DEFAULT_FLOODLIGHT_SRC
+    cd $DEFAULT_FLOODLIGHT_SRC
+    ant
+    sudo mkdir /var/lib/floodlight
+    sudo chmod 777 /var/lib/floodlight
 }
 
 InstallOvs() {
