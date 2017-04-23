@@ -85,9 +85,10 @@ InstallFloodlight() {
         dst=$DEFAULT_FLOODLIGHT_SRC
     fi
     GetFloodlightSource $dst
-    sudo apt-get install -y build-essential ant maven python-dev
+    sudo apt-get install -y build-essential default-jdk ant maven python-dev
+    cd $dst
     ant
-    sudo mkdir /var/lib/floodlight
+    sudo mkdir -p /var/lib/floodlight
     sudo chmod 777 /var/lib/floodlight
 }
 
